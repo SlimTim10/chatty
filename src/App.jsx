@@ -29,6 +29,16 @@ class App extends Component {
       ]
     };
   }
+
+  componentDidMount() {
+    console.log("componentDidMount <App />");
+    setTimeout(() => {
+      console.log("Simulating incoming message");
+      const newMessage = {id: 4, type: "user", username: "Michelle", content: "Hello there!"};
+      const messages = this.state.messages.concat(newMessage);
+      this.setState({messages: messages});
+    }, 3000);
+  }
   
   render() {
     console.log('Rendering <App />');
