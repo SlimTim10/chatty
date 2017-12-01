@@ -5,6 +5,7 @@ import Chatbar from './Chatbar.jsx';
 
 class App extends Component {
   render() {
+    console.log('Rendering <App />');
     return (
         <div>
         <Navbar />

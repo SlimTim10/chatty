@@ -3,6 +3,7 @@ import Message from './Message.jsx';
 
 class MessageList extends Component {
   render() {
+    console.log('Rendering <MessageList />');
     return (
         <main className="messages">
         <Message type="user" username="Anonymous1" content="I won't be impressed with technology until I can download food." />

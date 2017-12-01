@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 class Message extends Component {
   render() {
+    console.log('Rendering <Message />');
     if (this.props.type === "user") {
       return (
           <div className="message">
