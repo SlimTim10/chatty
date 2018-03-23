@@ -30,11 +30,19 @@ class App extends Component {
     };
 
     this.sendMessage = this.sendMessage.bind(this);
+    this.sendSystemMessage = this.sendSystemMessage.bind(this);
   }
 
   sendMessage(username, content) {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "user", username: username, content: content};
+    const messages = this.state.messages.concat(newMessage);
+    this.setState({messages: messages});
+  }
+
+  sendSystemMessage(content) {
+    const id = this.state.messages.length;
+    const newMessage = {id: id, type: "system", content: content};
     const messages = this.state.messages.concat(newMessage);
     this.setState({messages: messages});
   }
@@ -45,7 +53,7 @@ class App extends Component {
         <div>
         <Navbar />
         <MessageList messages={this.state.messages} />
-        <Chatbar username={this.state.currentUser.name} sendMessage={this.sendMessage} />
+        <Chatbar username={this.state.currentUser.name} sendMessage={this.sendMessage} sendSystemMessage={this.sendSystemMessage} />
         </div>
     );
   }
