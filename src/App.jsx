@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 import React, {Component} from 'react';
 import Navbar from './Navbar.jsx';
 import MessageList from './MessageList.jsx';
@@ -84,18 +86,21 @@ class App extends Component {
     }));
   };
 
+  addMessage = message => {
+    const messages = R.append(message, this.state.messages);
+    this.setState({ messages: messages });
+  };
+
   recvUserMessage = username => content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "user", username: username, content: content};
-    const messages = this.state.messages.concat(newMessage);
-    this.setState({messages: messages});
+    this.addMessage(newMessage);
   };
 
   recvSystemMessage = content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "system", content: content};
-    const messages = this.state.messages.concat(newMessage);
-    this.setState({messages: messages});
+    this.addMessage(newMessage);
   };
   
   render() {
