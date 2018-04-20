@@ -32,6 +32,8 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', ws => {
   console.log('Client connected');
 
+  sendUsersOnline(ws);
+
   ws.on('close', () => console.log('Client disconnected'));
 
   ws.on('message', msg => {
@@ -55,4 +57,12 @@ const broadcastAll = data => {
       client.send(JSON.stringify(data));
     }
   })
-}
+};
+
+const sendUsersOnline = ws => {
+  const data = {
+    type: 'usersOnline',
+    usersOnline: wss.clients.size
+  };
+  broadcastAll(data);
+};

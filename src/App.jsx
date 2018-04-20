@@ -9,7 +9,8 @@ const SERVER_PORT = 3001;
 
 const MSG = Object.freeze({
   user: 'user',
-  system: 'system'
+  system: 'system',
+  usersOnline: 'usersOnline'
 });
 
 const TEST_MESSAGES = [
@@ -65,6 +66,9 @@ class App extends Component {
       case MSG.system:
         this.recvSystemMessage(data.message);
         break;
+      case MSG.usersOnline:
+        this.recvUsersOnline(data.usersOnline);
+        break;
       default:
         break;
       }
@@ -101,6 +105,10 @@ class App extends Component {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "system", content: content};
     this.addMessage(newMessage);
+  };
+
+  recvUsersOnline = n => {
+    this.setState({ usersOnline: n });
   };
   
   render() {
