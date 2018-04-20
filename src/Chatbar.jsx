@@ -6,12 +6,9 @@ class Chatbar extends Component {
   constructor(props) {
     super(props);
     this.state = {username: this.props.username};
-
-    this.handleSubmitUsername = this.handleSubmitUsername.bind(this);
-    this.handleSubmitMessage = this.handleSubmitMessage.bind(this);
   }
 
-  handleSubmitUsername(event) {
+  handleSubmitUsername = event => {
     if (event.charCode === enterKey) {
       event.preventDefault();
       const newName = event.target.value;
@@ -19,9 +16,9 @@ class Chatbar extends Component {
       this.setState({username: newName});
       this.props.sendSystemMessage(content);
     }
-  }
+  };
   
-  handleSubmitMessage(event) {
+  handleSubmitMessage = event => {
     if (event.charCode === enterKey) {
       event.preventDefault();
       const content = event.target.value;
@@ -29,7 +26,7 @@ class Chatbar extends Component {
       this.props.sendUserMessage(username)(content);
       event.target.value = "";
     }
-  }
+  };
   
   render() {
     console.log('Rendering <Chatbar />');
