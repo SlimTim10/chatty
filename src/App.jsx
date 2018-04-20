@@ -58,7 +58,7 @@ class App extends Component {
       const data = JSON.parse(event.data);
       switch (data.type) {
       case MSG.user:
-        this.recvUserMessage(data.user, data.message);
+        this.recvUserMessage(data.user)(data.message);
         break;
       case MSG.system:
         this.recvSystemMessage(data.message);
@@ -84,19 +84,19 @@ class App extends Component {
     }));
   };
 
-  recvUserMessage(username, content) {
+  recvUserMessage = username => content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "user", username: username, content: content};
     const messages = this.state.messages.concat(newMessage);
     this.setState({messages: messages});
-  }
+  };
 
-  recvSystemMessage(content) {
+  recvSystemMessage = content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "system", content: content};
     const messages = this.state.messages.concat(newMessage);
     this.setState({messages: messages});
-  }
+  };
   
   render() {
     console.log('Rendering <App />');
