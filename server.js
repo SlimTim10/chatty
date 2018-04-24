@@ -34,7 +34,10 @@ wss.on('connection', ws => {
 
   sendUsersOnline(ws);
 
-  ws.on('close', () => console.log('Client disconnected'));
+  ws.on('close', () => {
+    sendUsersOnline(ws);
+    console.log('Client disconnected');
+  });
 
   ws.on('message', msg => {
     console.log('received: %s', msg);
