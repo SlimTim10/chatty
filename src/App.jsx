@@ -10,21 +10,29 @@ const SERVER_PORT = 3001;
 const MSG = Object.freeze({
   user: 'user',
   system: 'system',
-  usersOnline: 'usersOnline'
+  usersOnline: 'usersOnline',
+  color: 'color'
 });
 
 const TEST_MESSAGES = [
   {
     id: 0,
     type: "user",
-    username: "Bob",
+    user: {
+      name: "Bob",
+      color: "#000000"
+    },
     content: "Has anyone seen my marbles?"
   },
   {
     id: 1,
     type: "user",
-    username: "Anonymous",
-    content: "No, I think you lost them. You lost your marbles Bob. You lost them for good."
+    user: {
+      name: "Bob",
+      color: "#000000"
+    },
+    content: "No, I think you lost them. You lost your marbles Bob. You lost them for good.",
+    color: "#000000"
   },
   {
     id: 2,
@@ -40,7 +48,10 @@ class App extends Component {
     this.socket = null;
     
     this.state = {
-      currentUser: {name: "Bob"},
+      currentUser: {
+        name: "Guest",
+        color: "#000000"
+      },
       usersOnline: 1,
       messages: TEST_MESSAGES
     };
@@ -69,6 +80,9 @@ class App extends Component {
       case MSG.usersOnline:
         this.recvUsersOnline(data.usersOnline);
         break;
+      case MSG.color:
+        this.recvColor(data.color);
+        break;
       default:
         break;
       }
@@ -90,14 +104,22 @@ class App extends Component {
     }));
   };
 
+  changeUsername = name => {
+    const user = {
+      name: name,
+      color: this.state.currentUser.color
+    };
+    this.setState({ currentUser: user });
+  };
+
   addMessage = message => {
-    const messages = R.append(message, this.state.messages);
+    const messages = R.append(message)(this.state.messages);
     this.setState({ messages: messages });
   };
 
-  recvUserMessage = username => content => {
+  recvUserMessage = user => content => {
     const id = this.state.messages.length;
-    const newMessage = {id: id, type: "user", username: username, content: content};
+    const newMessage = {id: id, type: "user", user: user, content: content};
     this.addMessage(newMessage);
   };
 
@@ -110,15 +132,23 @@ class App extends Component {
   recvUsersOnline = n => {
     this.setState({ usersOnline: n });
   };
+
+  recvColor = color => {
+    const user = {
+      name: this.state.currentUser.name,
+      color: color
+    };
+    this.setState({ currentUser: user });
+  };
   
   render() {
     console.log('Rendering <App />');
     return (
-        <div>
-          <Navbar usersOnline={this.state.usersOnline} />
+      <div>
+        <Navbar usersOnline={this.state.usersOnline} />
         <MessageList messages={this.state.messages} />
-        <Chatbar username={this.state.currentUser.name} sendUserMessage={this.sendUserMessage} sendSystemMessage={this.sendSystemMessage} />
-        </div>
+        <Chatbar user={this.state.currentUser} sendUserMessage={this.sendUserMessage} sendSystemMessage={this.sendSystemMessage} changeUsername={this.changeUsername} />
+      </div>
     );
   }
 }
