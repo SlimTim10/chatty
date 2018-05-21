@@ -31,8 +31,13 @@ let colorsDB = [
   {color: '#ffd700', used: false}
 ];
 
+const commandList = [
+  'help',
+  'ping'
+];
+
 // [colorObj] -> (color, [colorObj])
-const availableColor = (cs) => {
+const availableColor = cs => {
   const i = R.findIndex(R.propEq('used', false))(cs);
   
   if (i === -1) return { color: '#000000', colors: cs };
@@ -67,6 +72,12 @@ wss.on('connection', ws => {
     const data = JSON.parse(msg);
     switch (data.type) {
     case 'user':
+      if (commandMessage(data.message)) {
+        parseCommand(data)(ws);
+      } else {
+        broadcastAll(data);
+      }
+      break;
     case 'system':
       broadcastAll(data);
       break;
@@ -76,12 +87,71 @@ wss.on('connection', ws => {
   })
 });
 
+// String -> Bool
+const commandMessage = message => message.startsWith('/');
+
+// (a -> Bool) -> [a] -> ([a], [a])
+const span = p => xs => {
+  if (xs.length === 0) return [];
+  if (p(R.head(xs))) {
+    const x = R.head(xs);
+    const rest = R.tail(xs);
+    const ys = span(p)(rest);
+    return [[x] + ys[0], ys[1]];
+  } else {
+    return [[], xs];
+  }
+};
+
+// a -> [a] -> ([a], [a])
+const splitAtFirst = y => xs => ([
+  R.takeWhile(z => z !== y)(xs),
+  R.tail(R.dropWhile(z => z !== y)(xs))
+]);
+
+const handleCommand = (cmd, body) => client => {
+  switch (cmd) {
+  case 'ping': {
+    const data = {
+      type: 'command',
+      message: 'pong'
+    };
+    broadcast(data)(client);
+    break; }
+  case 'help': 
+  default: {
+    const message = 'Commands:\n'
+      + commandList.map(x => '/'+x).join('\n');
+    const data = {
+      type: 'command',
+      message: message
+    };
+    broadcast(data)(client);
+    break; }
+  }
+};
+
+const parseCommand = data => client => {
+  // Show own message to user or hide it?
+  // broadcast(data)(client);
+  const message = data.message;
+  const messageParts = splitAtFirst(' ')(message);
+  const [cmd, body] = [messageParts[0].slice(1), messageParts[1]];
+  handleCommand(cmd, body)(client);
+};
+
+const broadcast = data => client => {
+  if (client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify(data));
+  }
+};
+
 const broadcastAll = data => {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(data));
     }
-  })
+  });
 };
 
 const sendUsersOnline = () => {

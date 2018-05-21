@@ -11,7 +11,8 @@ const MSG = Object.freeze({
   user: 'user',
   system: 'system',
   usersOnline: 'usersOnline',
-  color: 'color'
+  color: 'color',
+  command: 'command'
 });
 
 const TEST_MESSAGES = [
@@ -83,6 +84,9 @@ class App extends Component {
       case MSG.color:
         this.recvColor(data.color);
         break;
+      case MSG.command:
+        this.recvCommandMessage(data.message);
+        break;
       default:
         break;
       }
@@ -126,6 +130,12 @@ class App extends Component {
   recvSystemMessage = content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "system", content: content};
+    this.addMessage(newMessage);
+  };
+
+  recvCommandMessage = content => {
+    const id = this.state.messages.length;
+    const newMessage = {id: id, type: "command", content: content};
     this.addMessage(newMessage);
   };
 
