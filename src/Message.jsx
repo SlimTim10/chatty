@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
 
 class Message extends Component {
+  componentDidMount() {
+    window.scrollTo(0,document.body.scrollHeight);
+  }
+  
   render() {
     console.log('Rendering <Message />');
     switch (this.props.type) {
