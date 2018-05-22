@@ -5,6 +5,7 @@ const express = require('express');
 const WebSocket = require('ws');
 const uuid = require('uuid/v4');
 const R = require('ramda');
+const weather = require('./server/weather');
 
 new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
@@ -33,7 +34,8 @@ let colorsDB = [
 
 const commandList = [
   'help',
-  'ping'
+  'ping',
+  'weather <city>'
 ];
 
 // [colorObj] -> (color, [colorObj])
@@ -109,24 +111,29 @@ const splitAtFirst = y => xs => ([
   R.tail(R.dropWhile(z => z !== y)(xs))
 ]);
 
+const getWeather = () => 'test';
+
 const handleCommand = (cmd, body) => client => {
-  switch (cmd) {
-  case 'ping': {
+  const respond = resp => {
     const data = {
       type: 'command',
-      message: 'pong'
+      message: resp
     };
     broadcast(data)(client);
+  };
+  
+  switch (cmd) {
+  case 'ping': {
+    respond('pong');
+    break; }
+  case 'weather': {
+    weather.getWeather(body)(respond);
     break; }
   case 'help': 
   default: {
     const message = 'Commands:\n'
       + commandList.map(x => '/'+x).join('\n');
-    const data = {
-      type: 'command',
-      message: message
-    };
-    broadcast(data)(client);
+    respond(message);
     break; }
   }
 };
