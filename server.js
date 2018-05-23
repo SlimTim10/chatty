@@ -65,6 +65,7 @@ wss.on('connection', ws => {
 
   ws.on('close', () => {
     sendUsersOnline();
+    colorsDB = R.append({color: color, used: false})(colorsDB);
     console.log('Client disconnected');
   });
 
