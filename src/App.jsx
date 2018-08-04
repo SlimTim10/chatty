@@ -1,6 +1,11 @@
 import * as R from 'ramda';
 
 import React, {Component} from 'react';
+import {
+  BrowserRouter as Router,
+  Route
+} from 'react-router-dom';
+
 import Navbar from './Navbar.jsx';
 import MessageList from './MessageList.jsx';
 import Chatbar from './Chatbar.jsx';
@@ -154,11 +159,13 @@ class App extends Component {
   render() {
     console.log('Rendering <App />');
     return (
-      <div>
-        <Navbar usersOnline={this.state.usersOnline} />
-        <MessageList messages={this.state.messages} />
-        <Chatbar user={this.state.currentUser} sendUserMessage={this.sendUserMessage} sendSystemMessage={this.sendSystemMessage} changeUsername={this.changeUsername} />
-      </div>
+      <Router>
+        <div>
+          <Navbar usersOnline={this.state.usersOnline} />
+          <MessageList messages={this.state.messages} />
+          <Chatbar user={this.state.currentUser} sendUserMessage={this.sendUserMessage} sendSystemMessage={this.sendSystemMessage} changeUsername={this.changeUsername} />
+        </div>
+      </Router>
     );
   }
 }

@@ -12,6 +12,11 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: '/build/'
   },
+  devServer: {
+    historyApiFallback: {
+      index: '/build/index.html'
+    },
+  },
   module: {
     rules: [
       {
