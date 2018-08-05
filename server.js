@@ -43,7 +43,7 @@ const dbName = 'chatty';
         leaveAllRooms(ws, db);
       });
 
-      ws.on('message', msg => {
+      ws.on('message', async msg => {
         console.log('received: %s', msg);
 
         const data = JSON.parse(msg);
@@ -52,11 +52,22 @@ const dbName = 'chatty';
           if (commandMessage(data.message)) {
             parseCommand(data)(ws);
           } else {
-            broadcastAll(data)(wss);
+            const newMessage = {
+              type: 'user',
+              user: data.user,
+              content: data.message
+            };
+            await addRoomMessage(data.roomName, newMessage, db);
+            await broadcastRoomInfo(data.roomName, wss, db);
           }
           break;
         case 'system':
-          broadcastAll(data)(wss);
+          const newMessage = {
+            type: 'system',
+            content: data.message
+          };
+          await addRoomMessage(data.roomName, newMessage, db);
+          await broadcastRoomInfo(data.roomName, wss, db);
           break;
         case 'action':
           handleAction(data.message, ws, wss, db);
@@ -221,6 +232,16 @@ const handleAction = async (message, client, wss, db) => {
   default:
     break;
   }
+};
+
+const addRoomMessage = async (roomName, message, db) => {
+  const room = await db.collection('rooms').findOne({name: roomName});
+  const newMessage = {...message, id: room.messages.length};
+  
+  await db.collection('rooms').updateOne(
+    {name: roomName},
+    {$push: {messages: newMessage}}
+  );
 };
 
 const joinRoom = async (roomName, userName, client, db) => {

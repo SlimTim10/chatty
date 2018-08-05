@@ -125,6 +125,7 @@ class App extends Component {
   sendUserMessage = user => message => {
     this.socket.send(JSON.stringify({
       type: MSG.user,
+      roomName: this.state.currentRoom,
       user: user,
       message: message
     }));
@@ -133,6 +134,7 @@ class App extends Component {
   sendSystemMessage = message => {
     this.socket.send(JSON.stringify({
       type: MSG.system,
+      roomName: this.state.currentRoom,
       message: message
     }));
   }
