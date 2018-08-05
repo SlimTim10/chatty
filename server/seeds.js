@@ -6,10 +6,6 @@ const roomSeed = [
   {name: 'Main', users: [], messages: []}
 ];
 
-const userSeed = [
-  
-];
-
 (async function() {
   let client;
 
@@ -23,8 +19,6 @@ const userSeed = [
     await db.collection('rooms').deleteMany({});
     await db.collection('rooms').insertMany(roomSeed);
     
-    // await db.collection('users').insertMany(userSeed);
-
   } catch (err) {
     console.log(err.stack);
   }
