@@ -18,7 +18,7 @@ class Navbar extends Component {
           key={room.id}
           onClick={joinRoom}
           className={activeClass}>
-          {room.name} ({room.users.length})
+          {room.name} ({room.usersOnline})
         </button>
       );
     })(this.props.rooms);

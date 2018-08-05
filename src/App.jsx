@@ -86,7 +86,8 @@ class App extends Component {
       console.log('Connected to server');
 
       this.sendActionMessage({
-        action: 'joinServer'
+        action: 'joinServer',
+        user: this.state.currentUser
       });
     };
 
@@ -188,9 +189,20 @@ class App extends Component {
 
   recvActionMessage = message => {
     switch (message.action) {
-    case 'updateRooms':
+    case 'roomInfo':
+      this.setState({
+        currentRoom: message.room.name,
+        messages: message.room.messages
+      });
+      break;
+    // case 'updateRooms':
+    //   this.setState(prevState => ({
+    //     currentRoom: findCurrentRoom(prevState.currentUser)(message.rooms),
+    //     rooms: message.rooms
+    //   }));
+    //   break;
+    case 'roomsOverview':
       this.setState(prevState => ({
-        currentRoom: findCurrentRoom(prevState.currentUser)(message.rooms),
         rooms: message.rooms
       }));
       break;
@@ -201,19 +213,15 @@ class App extends Component {
 
   addRoom = () => {
     this.sendActionMessage({
-      action: 'addRoom',
-      roomName: 'Room' + this.state.rooms.length
+      action: 'addRoom'
     });
   }
 
   joinRoom = roomName => {
     this.sendActionMessage({
-      action: 'switchRoom',
+      action: 'joinRoom',
       user: this.state.currentUser,
-      changeRooms: {
-        leaving: this.state.currentRoom.name,
-        joining: roomName
-      }
+      roomName: roomName
     });
   }
   

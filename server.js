@@ -40,14 +40,7 @@ const dbName = 'chatty';
 
         sendUsersOnline(wss);
         colorsDB = R.append({color: color, used: false})(colorsDB);
-
-        // Notify room that user has left
-        // const user = R.find(R.propEq('id', ws.id), users);
-        // const roomIdx = R.findIndex(r => R.contains(user.name, R.map(u => u.name, r.users)))(rooms);
-        // const room = R.nth(roomIdx, rooms);
-        // const roomUsers = R.reject(u => u.id === ws.id)(room.users);
-        
-        users = R.reject(u => u.id === ws.id)(users);
+        leaveAllRooms(ws, db);
       });
 
       ws.on('message', msg => {
@@ -66,7 +59,7 @@ const dbName = 'chatty';
           broadcastAll(data)(wss);
           break;
         case 'action':
-          handleAction(data.message)(ws)(db);
+          handleAction(data.message, ws, wss, db);
         default:
           break;
         }
@@ -120,14 +113,6 @@ const availableColor = cs => {
   cs[i].used = true;
   return { color: cs[i].color, colors: cs };
 };
-
-const defaultRoom = {
-  id: 0,
-  name: 'Main',
-  users: []
-};
-let rooms = [defaultRoom];
-let users = [];
 
 // String -> Bool
 const commandMessage = message => message.startsWith('/');
@@ -189,108 +174,130 @@ const parseCommand = data => client => {
   handleCommand(cmd, body)(client);
 };
 
-const handleAction = message => client => db => {
-  let data;
-  switch (message.action) {
-  case 'switchRoom':
-    const user = R.find(R.propEq('id', client.id), users);
-    
-    rooms = updateRooms(user)(message.changeRooms)(rooms);
-    
-    data = {
-      type: 'action',
-      message: {
-        action: 'updateRooms',
-        currentRoom: R.find(R.propEq('name', message.changeRooms.joining))(rooms),
-        rooms: rooms
-      }
-    };
-    break;
-  case 'addRoom':
-    rooms = addRoom({
-      id: rooms.length,
-      name: 'Room' + rooms.length,
-      users: []
-    })(rooms);
-    
-    data = {
-      type: 'action',
-      message: {
-        action: 'updateRooms',
-        rooms: rooms
-      }
-    };
-    break;
-  case 'joinServer':
-    const newUser = {
-      id: ws.id,
-      name: message.user.name,
-      currentRoom: R.head(rooms).name
-    };
+const leaveAllRooms = async (client, db) => {
+  const rooms = await db.collection('rooms').find({}).toArray();
 
-    const rooms = await db.collection('rooms').find({}).limit(1).toArray();
-    console.log(rooms);
-    
-    await db.collection('users').insertOne({
-      name: message.user.name,
-      currentRoom: R.head(rooms).name
-    });
-    
-    users = R.append(newUser, users);
-    
-    const changeRooms = {
-      joining: R.head(rooms).name
-    };
-    
-    rooms = updateRooms(newUser)(changeRooms)(rooms);
-    
-    data = {
-      type: 'action',
-      message: {
-        action: 'updateRooms',
-        currentRoom: R.head(rooms),
-        rooms: rooms
-      }
-    };
+  rooms.forEach(async room => {
+    const found = R.find(R.propEq('id', client.id), room.users);
+    if (found) {
+      const users = R.reject(R.propEq('id', client.id), room.users);
+      await db.collection('rooms').updateMany(
+        {},
+        {$pull: {users: {id: client.id}}}
+      );
+    }
+  });
+};
+
+const handleAction = async (message, client, wss, db) => {
+  switch (message.action) {
+  case 'joinRoom':
+    await leaveAllRooms(client, db);
+    await joinRoom(message.roomName, message.user.name, client, db);
+    await broadcastRoomInfo(message.roomName, wss, db);
+    await broadcastRoomsOverview(wss, db);
     break;
+  case 'addRoom': {
+    const rooms = await db.collection('rooms').find({}).toArray();
+    
+    await db.collection('rooms').insertOne({
+      name: 'Room' + rooms.length,
+      users: [],
+      messages: []
+    });
+
+    await broadcastRoomsOverview(wss, db);
+    
+    break; }
+  case 'joinServer': {
+    const rooms = await db.collection('rooms').find({}).toArray();
+    const room = R.head(rooms);
+
+    await joinRoom(room.name, message.user.name, client, db);
+    await broadcastRoomInfo(room.name, wss, db);
+    await broadcastRoomsOverview(wss, db);
+    
+    break; }
   default:
     break;
   }
-  broadcastAll(data)(wss);
 };
 
-// User -> {leaving, joining} -> [Room] -> [Room]
-const updateRooms = user => changeRooms => rooms => {
-  if (changeRooms.leaving) {
-    const roomIdx = R.findIndex(R.propEq('name', changeRooms.leaving), rooms);
-    rooms = R.adjust(room => ({
-      id: room.id,
-      name: room.name,
-      users: R.reject(u => u.name === user.name)(room.users)
-    }), roomIdx, rooms);
+const joinRoom = async (roomName, userName, client, db) => {
+  const rooms = await db.collection('rooms').find({}).toArray();
+  const room = R.find(R.propEq('name', roomName))(rooms);
+
+  if (!room) {
+    console.log(`Room ${roomName} does not exist`);
+    return;
   }
   
-  if (changeRooms.joining) {
-    const roomIdx = R.findIndex(R.propEq('name', changeRooms.joining), rooms);
-    rooms = R.adjust(room => ({
-      id: room.id,
-      name: room.name,
-      users: R.append(user, room.users)
-    }), roomIdx, rooms);
-  }
+  const user = {
+    id: client.id,
+    name: userName
+  };
 
-  return rooms;
+  
+  await db.collection('rooms').updateOne(
+    {_id: room._id},
+    {$push: {users: user}}
+  )
 };
 
-// Room -> [Room] -> [Room]
-const addRoom = newRoom => rooms => {
-  return rooms.concat(newRoom);
+const broadcastRoomInfo = async (roomName, wss, db) => {
+  const rooms = await db.collection('rooms').find({}).toArray();
+  const room = R.find(R.propEq('name', roomName))(rooms);
+
+  if (!room) {
+    console.log(`Room ${roomName} does not exist`);
+    return;
+  }
+  
+  const roomInfo = {
+    type: 'action',
+    message: {
+      action: 'roomInfo',
+      room: room
+    }
+  };
+
+  const ids = R.map(u => u.id)(room.users);
+
+  broadcastTo(roomInfo)(ids)(wss); 
+};
+
+const broadcastRoomsOverview = async (wss, db) => {
+  const rooms = await db.collection('rooms').find({}).toArray();
+
+  const overview = R.map(r => ({
+    id: r._id,
+    name: r.name,
+    usersOnline: r.users.length
+  }))(rooms);
+  
+  const roomsOverview = {
+    type: 'action',
+    message: {
+      action: 'roomsOverview',
+      rooms: overview
+    }
+  };
+
+  broadcastAll(roomsOverview)(wss);
 };
 
 const broadcast = data => client => {
   if (client.readyState === WebSocket.OPEN) {
     client.send(JSON.stringify(data));
   }
+};
+
+const broadcastTo = data => ids => wss => {
+  wss.clients.forEach(client => {
+    if (ids.includes(client.id) && client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
 };
 
 const broadcastAll = data => wss => {
