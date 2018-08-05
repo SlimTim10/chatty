@@ -17,7 +17,8 @@ const MSG = Object.freeze({
   system: 'system',
   usersOnline: 'usersOnline',
   color: 'color',
-  command: 'command'
+  command: 'command',
+  action: 'action'
 });
 
 const TEST_MESSAGES = [
@@ -43,9 +44,25 @@ const TEST_MESSAGES = [
   {
     id: 2,
     type: "system",
-    content: "Anonymous1 changed their name to nomnom."
+    content: "Guest changed their name to Tim."
   }
 ];
+
+const findRoom = roomName => {
+  return R.find(R.propEq('name', roomName));
+};
+
+const findCurrentRoom = user => {
+  return R.find(room => {
+    const names = R.map(user => user.name)(room.users);
+    return names.includes(user.name);
+  });
+};
+
+const defaultUser = {
+  name: "Guest",
+  color: "#000000"
+};
 
 class App extends Component {
   constructor(props) {
@@ -54,10 +71,9 @@ class App extends Component {
     this.socket = null;
     
     this.state = {
-      currentUser: {
-        name: "Guest",
-        color: "#000000"
-      },
+      currentUser: defaultUser,
+      currentRoom: null,
+      rooms: [],
       usersOnline: 1,
       messages: TEST_MESSAGES
     };
@@ -68,6 +84,10 @@ class App extends Component {
 
     this.socket.onopen = event => {
       console.log('Connected to server');
+
+      this.sendActionMessage({
+        action: 'joinServer'
+      });
     };
 
     this.socket.onmessage = event => {
@@ -92,6 +112,9 @@ class App extends Component {
       case MSG.command:
         this.recvCommandMessage(data.message);
         break;
+      case MSG.action:
+        this.recvActionMessage(data.message);
+        break;
       default:
         break;
       }
@@ -104,14 +127,21 @@ class App extends Component {
       user: user,
       message: message
     }));
-  };
+  }
   
   sendSystemMessage = message => {
     this.socket.send(JSON.stringify({
       type: MSG.system,
       message: message
     }));
-  };
+  }
+
+  sendActionMessage = message => {
+    this.socket.send(JSON.stringify({
+      type: MSG.action,
+      message: message
+    }));
+  }
 
   changeUsername = name => {
     const user = {
@@ -119,34 +149,34 @@ class App extends Component {
       color: this.state.currentUser.color
     };
     this.setState({ currentUser: user });
-  };
+  }
 
   addMessage = message => {
     const messages = R.append(message)(this.state.messages);
     this.setState({ messages: messages });
-  };
+  }
 
   recvUserMessage = user => content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "user", user: user, content: content};
     this.addMessage(newMessage);
-  };
+  }
 
   recvSystemMessage = content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "system", content: content};
     this.addMessage(newMessage);
-  };
+  }
 
   recvCommandMessage = content => {
     const id = this.state.messages.length;
     const newMessage = {id: id, type: "command", content: content};
     this.addMessage(newMessage);
-  };
+  }
 
   recvUsersOnline = n => {
     this.setState({ usersOnline: n });
-  };
+  }
 
   recvColor = color => {
     const user = {
@@ -154,16 +184,58 @@ class App extends Component {
       color: color
     };
     this.setState({ currentUser: user });
-  };
+  }
+
+  recvActionMessage = message => {
+    switch (message.action) {
+    case 'updateRooms':
+      this.setState(prevState => ({
+        currentRoom: findCurrentRoom(prevState.currentUser)(message.rooms),
+        rooms: message.rooms
+      }));
+      break;
+    default:
+      break;
+    }
+  }
+
+  addRoom = () => {
+    this.sendActionMessage({
+      action: 'addRoom',
+      roomName: 'Room' + this.state.rooms.length
+    });
+  }
+
+  joinRoom = roomName => {
+    this.sendActionMessage({
+      action: 'switchRoom',
+      user: this.state.currentUser,
+      changeRooms: {
+        leaving: this.state.currentRoom.name,
+        joining: roomName
+      }
+    });
+  }
   
   render() {
     console.log('Rendering <App />');
     return (
       <Router>
         <div>
-          <Navbar usersOnline={this.state.usersOnline} />
+          <Navbar
+            usersOnline={this.state.usersOnline}
+            currentRoom={this.state.currentRoom}
+            rooms={this.state.rooms}
+            addRoom={this.addRoom}
+            joinRoom={this.joinRoom}
+            />
           <MessageList messages={this.state.messages} />
-          <Chatbar user={this.state.currentUser} sendUserMessage={this.sendUserMessage} sendSystemMessage={this.sendSystemMessage} changeUsername={this.changeUsername} />
+          <Chatbar
+            user={this.state.currentUser}
+            sendUserMessage={this.sendUserMessage}
+            sendSystemMessage={this.sendSystemMessage}
+            changeUsername={this.changeUsername}
+            />
         </div>
       </Router>
     );
