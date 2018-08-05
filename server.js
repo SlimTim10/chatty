@@ -35,12 +35,13 @@ const dbName = 'chatty';
       assignColor(ws)(color);
       colorsDB = colors;
 
-      ws.on('close', () => {
+      ws.on('close', async () => {
         console.log('Client disconnected');
 
         sendUsersOnline(wss);
         colorsDB = R.append({color: color, used: false})(colorsDB);
-        leaveAllRooms(ws, db);
+        await leaveAllRooms(ws, db);
+        await broadcastRoomsOverview(wss, db);
       });
 
       ws.on('message', async msg => {
@@ -188,7 +189,7 @@ const parseCommand = data => client => {
 const leaveAllRooms = async (client, db) => {
   const rooms = await db.collection('rooms').find({}).toArray();
 
-  rooms.forEach(async room => {
+  for (const room of rooms) {
     const found = R.find(R.propEq('id', client.id), room.users);
     if (found) {
       const users = R.reject(R.propEq('id', client.id), room.users);
@@ -197,7 +198,7 @@ const leaveAllRooms = async (client, db) => {
         {$pull: {users: {id: client.id}}}
       );
     }
-  });
+  };
 };
 
 const handleAction = async (message, client, wss, db) => {
