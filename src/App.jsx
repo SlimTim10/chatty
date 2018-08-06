@@ -75,7 +75,7 @@ class App extends Component {
       currentRoom: null,
       rooms: [],
       usersOnline: 1,
-      messages: TEST_MESSAGES
+      messages: []
     };
   }
 
