@@ -197,12 +197,6 @@ class App extends Component {
         messages: message.room.messages
       });
       break;
-    // case 'updateRooms':
-    //   this.setState(prevState => ({
-    //     currentRoom: findCurrentRoom(prevState.currentUser)(message.rooms),
-    //     rooms: message.rooms
-    //   }));
-    //   break;
     case 'roomsOverview':
       this.setState(prevState => ({
         rooms: message.rooms
