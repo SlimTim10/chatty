@@ -20,6 +20,28 @@ const dbName = 'chatty';
 
     const db = client.db(dbName);
 
+    const numRooms = await db.collection('rooms').countDocuments({});
+    if (numRooms < 1) {
+      throw 'ERROR: No rooms in database. Try seeding first.';
+    }
+
+    new WebpackDevServer(webpack(config), {
+      publicPath: config.output.publicPath,
+      watchOptions: {
+        aggregateTimeout: 300,
+        poll: 1000,
+        ignored: /node_modules/
+      }
+    })
+      .listen(3000, '0.0.0.0', function (err, result) {
+        if (err) {
+          console.log(err);
+        }
+
+        console.log('Client running at http://0.0.0.0:3000');
+      });
+
+
     const server = express()
           .use(express.static('public'))
           .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Server listening on ${ PORT }`));
@@ -79,25 +101,10 @@ const dbName = 'chatty';
     });
 
   } catch (err) {
-    console.log(err.stack);
+    client.close();
+    console.log(err);
   }
 })();
-
-new WebpackDevServer(webpack(config), {
-    publicPath: config.output.publicPath,
-    watchOptions: {
-      aggregateTimeout: 300,
-      poll: 1000,
-      ignored: /node_modules/
-    }
-  })
-  .listen(3000, '0.0.0.0', function (err, result) {
-    if (err) {
-      console.log(err);
-    }
-
-    console.log('Client running at http://0.0.0.0:3000');
-  });
 
 const PORT = 3001;
 
