@@ -14,7 +14,7 @@ npm install
 Seed the MongoDB database.
 
 ```
-node server/seeds.js
+npm run seed
 ```
 
 Start the server.
