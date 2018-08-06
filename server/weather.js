@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const R = require('ramda');
 const https = require('https');
@@ -8,8 +8,6 @@ const getWeather = city => callback => {
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${OWM_API_KEY}`;
   https.get(url, (res) => {
     let body = '';
-    console.log('statusCode:', res.statusCode);
-    console.log('headers:', res.headers);
 
     res.on('data', (d) => {
       body += d;

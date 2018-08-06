@@ -1,6 +1,7 @@
+'use strict';
+
 const {MongoClient} = require('mongodb');
-const mongoURL = 'mongodb://localhost:27017';
-const dbName = 'chatty';
+const {mongoURL, dbName} = require('./dbconfig');
 
 const roomSeed = [
   {name: 'Main', users: [], messages: []}
