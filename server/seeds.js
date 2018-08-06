@@ -11,7 +11,7 @@ const roomSeed = [
   let client;
 
   try {
-    client = await MongoClient.connect(mongoURL);
+    client = await MongoClient.connect(mongoURL, { useNewUrlParser: true });
     console.log(`Connected to mongodb: ${mongoURL}`);
 
     const db = client.db(dbName);
