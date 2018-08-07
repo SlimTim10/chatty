@@ -72,7 +72,7 @@ const sendUsersOnline = wss => {
     type: 'usersOnline',
     usersOnline: wss.clients.size
   };
-  broadcastAll(data);
+  broadcastAll(data)(wss);
 };
 
 const assignColor = client => color => {
