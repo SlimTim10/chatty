@@ -1,0 +1,25 @@
+.room {
+	background-color: rgba(35, 178, 99, 0.05);
+
+	.user-list {
+		position: fixed;
+		top: 70px;
+		right: 10px;
+		background-color: $tertiary-color;
+		border-radius: 6px;
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		width: 10%;
+		word-wrap: break-word;
+
+		li {
+			padding: 5px 5px 5px 5px;
+			border-bottom: 1px solid $primary-color;
+		}
+
+		li:last-child {
+			border: none;
+		}
+	}
+}

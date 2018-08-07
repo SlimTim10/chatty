@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 
 import Navbar from './Navbar.jsx';
-import MessageList from './MessageList.jsx';
+import Room from './Room.jsx';
 import Chatbar from './Chatbar.jsx';
 
 const SERVER_PORT = 3001;
@@ -125,7 +125,7 @@ class App extends Component {
   sendUserMessage = user => message => {
     this.socket.send(JSON.stringify({
       type: MSG.user,
-      roomName: this.state.currentRoom,
+      roomName: this.state.currentRoom.name,
       user: user,
       message: message
     }));
@@ -134,7 +134,7 @@ class App extends Component {
   sendSystemMessage = message => {
     this.socket.send(JSON.stringify({
       type: MSG.system,
-      roomName: this.state.currentRoom,
+      roomName: this.state.currentRoom.name,
       message: message
     }));
   }
@@ -151,7 +151,12 @@ class App extends Component {
       name: name,
       color: this.state.currentUser.color
     };
-    this.setState({ currentUser: user });
+    
+    this.setState({
+      currentUser: user
+    }, () => {
+      this.joinRoom(this.state.currentRoom.name);
+    });
   }
 
   addMessage = message => {
@@ -193,7 +198,7 @@ class App extends Component {
     switch (message.action) {
     case 'roomInfo':
       this.setState({
-        currentRoom: message.room.name,
+        currentRoom: message.room,
         messages: message.room.messages
       });
       break;
@@ -222,6 +227,9 @@ class App extends Component {
   }
   
   render() {
+
+    const users = this.state.currentRoom ? this.state.currentRoom.users : [];
+    
     return (
       <Router>
         <div>
@@ -232,7 +240,7 @@ class App extends Component {
             addRoom={this.addRoom}
             joinRoom={this.joinRoom}
             />
-          <MessageList messages={this.state.messages} />
+          <Room messages={this.state.messages} users={users} />
           <Chatbar
             user={this.state.currentUser}
             sendUserMessage={this.sendUserMessage}

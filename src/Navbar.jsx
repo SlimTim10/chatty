@@ -28,7 +28,7 @@ const Navbar = ({
 
 Navbar.propTypes = {
   rooms: PropTypes.arrayOf(PropTypes.object).isRequired,
-  currentRoom: PropTypes.string,
+  currentRoom: PropTypes.object,
   joinRoom: PropTypes.func.isRequired,
   addRoom: PropTypes.func.isRequired,
   usersOnline: PropTypes.number.isRequired

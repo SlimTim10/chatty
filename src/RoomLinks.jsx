@@ -8,7 +8,7 @@ const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
   
   const roomLinks = R.map(room => {
     
-    const active = currentRoom && (currentRoom === room.name);
+    const active = currentRoom && (currentRoom.name === room.name);
     
     return (
       <RoomLink
@@ -28,7 +28,7 @@ const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
 };
 
 RoomLinks.propTypes = {
-  currentRoom: PropTypes.string,
+  currentRoom: PropTypes.object,
   joinRoom: PropTypes.func.isRequired,
   rooms: PropTypes.arrayOf(PropTypes.object).isRequired
 };

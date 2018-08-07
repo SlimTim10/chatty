@@ -7,6 +7,7 @@
 	position: fixed;
 	right: 0;
 	top: 0;
+	opacity: 0.9;
 }
 
 .navbar-brand {
@@ -22,6 +23,7 @@
 }
 
 .users-online {
+	color: $secondary-color;
 	float: right;
 	line-height: 60px;
 }
