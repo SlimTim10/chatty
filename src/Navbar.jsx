@@ -9,6 +9,9 @@ const Navbar = ({
   addRoom,
   usersOnline
 }) => {
+  
+  const usersOnlineText = usersOnline === 1 ? 'user online' : 'users online';
+  
   return (
     <nav className="navbar">
 	  <a href="/" className="navbar-brand">Chatty</a>
@@ -18,7 +21,7 @@ const Navbar = ({
         joinRoom={joinRoom}
         />
       <button onClick={addRoom}>+</button>
-      <span className="users-online">{usersOnline} users online</span>
+      <span className="users-online">{usersOnline} {usersOnlineText}</span>
     </nav>
   );
 };

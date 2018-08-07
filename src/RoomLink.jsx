@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const RoomLink = ({room, joinRoom, activeClass}) => (
+const RoomLink = ({room, joinRoom, active}) => (
   <button
     key={room.id}
     onClick={joinRoom}
-    className={activeClass}>
+    className={active ? 'active-room' : ''}>
     {room.name} ({room.usersOnline})
   </button>
 );
@@ -13,7 +13,7 @@ const RoomLink = ({room, joinRoom, activeClass}) => (
 RoomLink.propTypes = {
   room: PropTypes.object.isRequired,
   joinRoom: PropTypes.func.isRequired,
-  activeClass: PropTypes.string
+  active: PropTypes.bool.isRequired
 };
 
 export default RoomLink;

@@ -22,7 +22,9 @@ class Message extends Component {
       break;
     case 'system':
       return (
-        <div className="message system">{this.props.content}</div>
+        <div className="message system">
+          <span className="message-content">{this.props.content}</span>
+        </div>
       );
       break;
     case 'command':

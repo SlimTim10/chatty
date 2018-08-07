@@ -8,17 +8,14 @@ const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
   
   const roomLinks = R.map(room => {
     
-    const activeClass =
-      currentRoom && (currentRoom === room.name)
-      ? 'active'
-      : '';
+    const active = currentRoom && (currentRoom === room.name);
     
     return (
       <RoomLink
         key={room.id}
         room={room}
         joinRoom={() => joinRoom(room.name)}
-        activeClass={activeClass}
+        active={active}
         />
     );
   })(rooms);
