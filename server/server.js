@@ -20,7 +20,7 @@ const {
   let client;
 
   try {
-    client = await MongoClient.connect(mongoURL, { useNewUrlParser: true });
+    client = await MongoClient.connect('mongodb://heroku_fr23lf43:heroku_fr23lf43@localhost:27017/?authMechanism=DEFAULT&authSource=heroku_fr23lf43', { useNewUrlParser: true });
     console.log(`Connected to mongodb: ${mongoURL}`);
 
     const db = client.db(dbName);
