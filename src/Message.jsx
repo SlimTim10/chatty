@@ -2,24 +2,38 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 class Message extends Component {
+  constructor() {
+    super();
+    this.state = {
+      fading: true
+    };
+  }
+  
   componentDidMount() {
     window.scrollTo(0,document.body.scrollHeight);
+
+    setTimeout(() => {
+      this.setState({fading: false});
+    }, 200);
   }
   
   render() {
     switch (this.props.type) {
-    case 'user':
+    case 'user': {
       const userStyle = {
         color: this.props.user.color
       };
+
+      const classes = ['message'];
+      if (this.state.fading) classes.push('fading');
       
       return (
-        <div className="message">
+        <div className={classes.join(' ')}>
           <span className="message-username" style={userStyle}>{this.props.user.name}</span>
           <span className="message-content">{this.props.content}</span>
 	    </div>
       );
-      break;
+      break; }
     case 'system':
       return (
         <div className="message system">

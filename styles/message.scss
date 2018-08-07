@@ -1,6 +1,7 @@
 .message {
 	display: flex;
 	padding: 5px;
+	transition: background-color 1s ease;
 
 	.system {
 		font-style: italic;
@@ -22,4 +23,8 @@
 .message-username {
 	flex: 2;
 	font-weight: 700;
+}
+
+.fading {
+	background-color: $tertiary-color;
 }
