@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 class Message extends Component {
   componentDidMount() {
@@ -36,4 +37,11 @@ class Message extends Component {
     }
   }
 }
+
+Message.propTypes = {
+  type: PropTypes.string.isRequired,
+  user: PropTypes.object,
+  content: PropTypes.string.isRequired
+};
+
 export default Message;

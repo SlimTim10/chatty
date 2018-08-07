@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import RoomLinks from './RoomLinks.jsx';
 
 const Navbar = ({
@@ -20,6 +21,14 @@ const Navbar = ({
       <span className="users-online">{usersOnline} users online</span>
     </nav>
   );
+};
+
+Navbar.propTypes = {
+  rooms: PropTypes.arrayOf(PropTypes.object).isRequired,
+  currentRoom: PropTypes.string,
+  joinRoom: PropTypes.func.isRequired,
+  addRoom: PropTypes.func.isRequired,
+  usersOnline: PropTypes.number.isRequired
 };
 
 export default Navbar;

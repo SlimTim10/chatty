@@ -1,6 +1,7 @@
 import * as R from 'ramda';
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import RoomLink from './RoomLink.jsx';
 
 const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
@@ -8,7 +9,7 @@ const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
   const roomLinks = R.map(room => {
     
     const activeClass =
-      currentRoom && (currentRoom.name === room.name)
+      currentRoom && (currentRoom === room.name)
       ? 'active'
       : '';
     
@@ -27,6 +28,12 @@ const RoomLinks = ({currentRoom, joinRoom, rooms}) => {
       {roomLinks}
     </div>
   );
+};
+
+RoomLinks.propTypes = {
+  currentRoom: PropTypes.string,
+  joinRoom: PropTypes.func.isRequired,
+  rooms: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default RoomLinks;

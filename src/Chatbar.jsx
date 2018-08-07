@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const enterKey = 13;
 
@@ -43,6 +44,13 @@ const Chatbar = ({
         />
     </footer>
   );
+};
+
+Chatbar.propTypes = {
+  user: PropTypes.object.isRequired,
+  changeUsername: PropTypes.func.isRequired,
+  sendSystemMessage: PropTypes.func.isRequired,
+  sendUserMessage: PropTypes.func.isRequired
 };
 
 export default Chatbar;
