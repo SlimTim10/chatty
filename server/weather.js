@@ -2,7 +2,7 @@
 
 const R = require('ramda');
 const https = require('https');
-const { OWM_API_KEY } = require('./secrets');
+const OWM_API_KEY = process.env.OWM_API_KEY;
 
 const getWeather = city => callback => {
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${OWM_API_KEY}`;
