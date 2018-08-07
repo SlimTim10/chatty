@@ -1,27 +1,26 @@
 import * as R from 'ramda';
 
-import React, {Component} from 'react';
+import React from 'react';
 import Message from './Message.jsx';
 
-class MessageList extends Component {
-  render() {
-    const messages = R.map(message => {
-      return (
-        <Message
-          key={message.id}
-          type={message.type}
-          user={message.user}
-          content={message.content}
-          color={message.color}
-          />
-      );
-    })(this.props.messages);
-    
+const MessageList = ({messages}) => {
+  const messageComponents = R.map(message => {
     return (
-        <main className="messages">
-        {messages}
-        </main>
+      <Message
+        key={message.id}
+        type={message.type}
+        user={message.user}
+        content={message.content}
+        color={message.color}
+        />
     );
-  }
-}
+  })(messages);
+  
+  return (
+    <main className="messages">
+      {messageComponents}
+    </main>
+  );
+};
+
 export default MessageList;

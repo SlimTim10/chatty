@@ -1,15 +1,12 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-class RoomLink extends Component {
-  render() {
-    return (
-      <button
-        key={this.props.room.id}
-        onClick={this.props.joinRoom}
-        className={this.props.activeClass}>
-        {this.props.room.name} ({this.props.room.usersOnline})
-      </button>
-    );
-  }
-}
+const RoomLink = ({room, joinRoom, activeClass}) => (
+  <button
+    key={room.id}
+    onClick={joinRoom}
+    className={activeClass}>
+    {room.name} ({room.usersOnline})
+  </button>
+);
+
 export default RoomLink;

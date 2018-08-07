@@ -1,38 +1,48 @@
-import React, {Component} from 'react';
+import React from 'react';
 
 const enterKey = 13;
 
-class Chatbar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  handleSubmitUsername = event => {
+const Chatbar = ({
+  user,
+  changeUsername,
+  sendSystemMessage,
+  sendUserMessage
+}) => {
+  
+  const handleSubmitUsername = event => {
     if (event.charCode === enterKey) {
       event.preventDefault();
       const newName = event.target.value;
-      const content = `${this.props.user.name} changed their name to ${newName}.`;
-      this.props.changeUsername(newName);
-      this.props.sendSystemMessage(content);
+      const content = `${user.name} changed their name to ${newName}.`;
+      changeUsername(newName);
+      sendSystemMessage(content);
     }
   };
   
-  handleSubmitMessage = event => {
+  const handleSubmitMessage = event => {
     if (event.charCode === enterKey) {
       event.preventDefault();
       const content = event.target.value;
-      this.props.sendUserMessage(this.props.user)(content);
+      sendUserMessage(user)(content);
       event.target.value = "";
     }
   };
   
-  render() {
-    return (
-        <footer className="chatbar">
-	      <input className="chatbar-username" placeholder="Your Name (Optional)" defaultValue={this.props.user.name} onKeyPress={this.handleSubmitUsername} />
-	    <input className="chatbar-message" placeholder="Type a message and hit ENTER" onKeyPress={this.handleSubmitMessage} />
-        </footer>
-    );
-  }
-}
+  return (
+    <footer className="chatbar">
+	  <input
+        className="chatbar-username"
+        placeholder="Your Name (Optional)"
+        defaultValue={user.name}
+        onKeyPress={handleSubmitUsername}
+        />
+	  <input
+        className="chatbar-message"
+        placeholder="Type a message and hit ENTER"
+        onKeyPress={handleSubmitMessage}
+        />
+    </footer>
+  );
+};
+
 export default Chatbar;
