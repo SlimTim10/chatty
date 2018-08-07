@@ -6,7 +6,6 @@ class Message extends Component {
   }
   
   render() {
-    console.log('Rendering <Message />');
     switch (this.props.type) {
     case 'user':
       const userStyle = {

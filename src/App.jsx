@@ -222,7 +222,6 @@ class App extends Component {
   }
   
   render() {
-    console.log('Rendering <App />');
     return (
       <Router>
         <div>
