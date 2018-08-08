@@ -56,7 +56,7 @@ const {
         
         colorsDB = R.append({color: color, used: false})(colorsDB);
         
-        await leaveAllRooms(ws, db);
+        await leaveAllRooms(wss, ws, db);
         await broadcastRoomsOverview(wss, db);
       });
 
@@ -109,7 +109,7 @@ let colorsDB = [
   {color: '#ffd700', used: false}
 ];
 
-const leaveAllRooms = async (client, db) => {
+const leaveAllRooms = async (wss, client, db) => {
   const rooms = await db.collection('rooms').find({}).toArray();
 
   for (const room of rooms) {
@@ -120,6 +120,7 @@ const leaveAllRooms = async (client, db) => {
         {},
         {$pull: {users: {id: client.id}}}
       );
+      await broadcastRoomInfo(room.name, wss, db);
     }
   };
 };
@@ -127,7 +128,7 @@ const leaveAllRooms = async (client, db) => {
 const handleAction = async (message, client, wss, db) => {
   switch (message.action) {
   case 'joinRoom':
-    await leaveAllRooms(client, db);
+    await leaveAllRooms(wss, client, db);
     await joinRoom(message.roomName, message.user.name, client, db);
     await broadcastRoomInfo(message.roomName, wss, db);
     await broadcastRoomsOverview(wss, db);
