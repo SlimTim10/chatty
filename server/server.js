@@ -9,7 +9,6 @@ const util = require('./util');
 const devServer = require('./dev-server');
 const {execCommand} = require('./command');
 const {
-  broadcast,
   sendUsersOnline,
   assignColor,
   broadcastRoomInfo,

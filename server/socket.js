@@ -22,7 +22,7 @@ const broadcastRoomInfo = async (roomName, wss, db) => {
 
   const ids = R.map(u => u.id)(room.users);
 
-  broadcastTo(roomInfo)(ids)(wss); 
+  broadcastTo(roomInfo)(ids)(wss);
 };
 
 const broadcastRoomsOverview = async (wss, db) => {
@@ -53,8 +53,8 @@ const broadcast = data => client => {
 
 const broadcastTo = data => ids => wss => {
   wss.clients.forEach(client => {
-    if (ids.includes(client.id) && client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(data));
+    if (ids.includes(client.id)) {
+      broadcast(data)(client);
     }
   });
 };
