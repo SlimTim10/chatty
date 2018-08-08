@@ -95,7 +95,7 @@ const {
     });
 
   } catch (err) {
-    client.close();
+    if (client) client.close();
     console.log(err);
   }
 })();
